@@ -28,17 +28,17 @@ msgstr "文件传输"
 msgid "Install"
 msgstr "安装"
 
-msgid "Mode string"
+msgid "Permissions"
 msgstr "模式字符串"
 
-msgid "Modify time"
+msgid "Last Modified"
 msgstr "修改时间"
 
 msgid "No specify upload file."
 msgstr "未指定上传文件"
 
 msgid "Path on Router:"
-msgstr "路由上目录"
+msgstr "路由器上目录"
 
 msgid "Remove"
 msgstr "移除"
@@ -57,3 +57,6 @@ msgstr "将文件上传到'/tmp/upload/'"
 
 msgid "List"
 msgstr "列出"
+
+msgid "Not a folder"
+msgstr "不是文件夹"
