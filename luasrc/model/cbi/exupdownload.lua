@@ -191,7 +191,7 @@ btnis.render = function(self, section, scope)
 end
 
 btnis.write = function(self, section)
-    local r = luci.sys.exec(string.format('opkg --force-depends --force-reinstall install "/tmp/upload/%s"', inits[section].name))
+    local r = luci.sys.exec(string.format('opkg --force-reinstall install "/tmp/upload/%s"', inits[section].name))
     form.description = string.format('<span style="color: red">%s</span>', r)
 end
 
