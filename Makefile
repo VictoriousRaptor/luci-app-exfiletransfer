@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=IPK upload & install, file download and simple file management
 LUCI_DEPENDS:=+luci-lib-fs
-PKG_VERSION:=0.1.0
+PKG_VERSION:=0.1.1
 PKG_RELEASE:=1
 
 include $(TOPDIR)/feeds/luci/luci.mk
