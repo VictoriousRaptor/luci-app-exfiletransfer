@@ -54,9 +54,9 @@ local byteUnits = {" kB", " MB", " GB", " TB"}
 local function GetSizeStr(size)
     local i = 0
     repeat
-        size = size / 1000
+        size = size / 1024
         i = i + 1
-    until (size <= 1000)
+    until (size <= 1024)
     return string.format("%.1f", size) .. byteUnits[i]
 end
 
@@ -97,6 +97,7 @@ function List()
                 inits2[i].remove = 0
             end
         end
+        form2.description = string.format('<span style="color: black">%s</span>', dl_path) 
     else
         form2.description = string.format('<span style="color: red">%s</span>', tranlate("Not a folder"))
     end
@@ -198,7 +199,7 @@ end
 form2 = SimpleForm("dlfilelist", translate("Download file list"), nil)
 form2.reset = false
 form2.submit = false
-form2.description = dl_path
+
 
 local inits2 = {}
 tb2 = form2:section(Table, inits2)

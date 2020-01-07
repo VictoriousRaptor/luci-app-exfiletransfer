@@ -29,7 +29,7 @@ msgid "Install"
 msgstr "安装"
 
 msgid "Permissions"
-msgstr "模式字符串"
+msgstr "权限"
 
 msgid "Last Modified"
 msgstr "修改时间"
@@ -58,5 +58,5 @@ msgstr "将文件上传到'/tmp/upload/'"
 msgid "List"
 msgstr "列出"
 
-msgid "Not a folder"
-msgstr "不是文件夹"
+msgid "Not a folder!"
+msgstr "不是文件夹!"
