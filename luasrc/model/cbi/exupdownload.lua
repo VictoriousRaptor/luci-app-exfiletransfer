@@ -207,10 +207,9 @@ local sz2 = tb2:option(DummyValue, "size", translate("Size"))
 local btnrm2 = tb2:option(Button, "remove", translate("Remove"))
 btnrm2.render = function(self, section, scope)
 	if not inits2[section].remove then
-		self.type = "hidden"
+		self.inputstyle = "remove"
+		Button.render(self, section, scope)
 	end
-	self.inputstyle = "remove"
-	Button.render(self, section, scope)
 end
 btnrm2.write = function(self, section)
 	local v = nfs.unlink(dl_path .. nfs.basename(inits2[section].name))
