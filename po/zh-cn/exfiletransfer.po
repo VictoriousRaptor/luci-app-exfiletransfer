@@ -34,7 +34,7 @@ msgstr "权限"
 msgid "Last Modified"
 msgstr "修改时间"
 
-msgid "No specify upload file."
+msgid "No specified upload file."
 msgstr "未指定上传文件"
 
 msgid "Path on Router:"

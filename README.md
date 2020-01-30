@@ -2,6 +2,8 @@
 
 An extended version of [luci-app-filetransfer](https://github.com/f8q8/luci-app-filetransfer)
 
+WARNING: STILL UNDER DEVELOPMENT
+
 ## TODOs
 
 - [ ] 替换为nixio
