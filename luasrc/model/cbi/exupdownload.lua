@@ -17,7 +17,7 @@ um.template = "cbi/exother_dvalue"
 local fdl = SimpleForm("download", translate("Download"), nil)
 fdl.reset = false
 fdl.submit = false
-local sdl = fdl:section(SimpleSection, "", translate("Download file"))
+local sdl = fdl:section(SimpleSection, "", translate("Download file or foler"))
 local fd = sdl:option(FileUpload, "")
 fd.template = "cbi/exother_download"
 local dm = sdl:option(DummyValue, "", nil)
@@ -37,10 +37,14 @@ local function GetSizeStr(size)
         size = size / 1024
         i = i + 1
     until size < 1024 or i == #byteUnits
-    return string.format("%.1f%s", size, byteUnits[i])
+    return format("%.1f%s", size, byteUnits[i])
 end
 
 local function SetTableEntries(table, path)
+    if not path then
+        return
+    end
+    path = path .. "*"
     local attr
     for i, f in ipairs(fs.glob(path)) do
         attr = nfs.stat(f)
@@ -50,36 +54,10 @@ local function SetTableEntries(table, path)
             table[i].mtime = os.date("%Y-%m-%d %H:%M:%S", attr.mtime)
             table[i].modestr = attr.modestr
             table[i].size = GetSizeStr(attr.size)
-            table[i].remove = 0
-            table[i].install = false
+            table[i].remove = attr.type ~= "dir"
+            -- table[i].install = false
         end
     end
-end
-
-SetTableEntries(inits, "/tmp/upload/*")
-
---Upload Form
-local upload_form = SimpleForm("filelist", translate("Upload file list"), nil)
-upload_form.reset = false
-upload_form.submit = false
-
-local tb = upload_form:section(Table, inits)
-local nm = tb:option(DummyValue, "name", translate("File name"))
-local mt = tb:option(DummyValue, "mtime", translate("Last Modified"))
-local ms = tb:option(DummyValue, "modestr", translate("Permissions"))
-local sz = tb:option(DummyValue, "size", translate("Size"))
-local btnrm = tb:option(Button, "remove", translate("Remove"))
-btnrm.render = function(self, section, scope)
-    self.inputstyle = "remove"
-    Button.render(self, section, scope)
-end
-
-btnrm.write = function(self, section)
-    local v = nfs.unlink(ul_path .. nfs.basename(inits[section].name))
-    if v then
-        table.remove(inits, section)
-    end
-    return v
 end
 
 local function IsIpkFile(name)
@@ -88,54 +66,9 @@ local function IsIpkFile(name)
     return ext == ".ipk"
 end
 
-local btnins = tb:option(Button, "install", translate("Install"))
-btnins.template = "cbi/exother_button"
-btnins.render = function(self, section, scope)
-    if not inits[section] then
-        return false
-    end
-    if IsIpkFile(inits[section].name) then
-        scope.display = ""
-    else
-        scope.display = "none"
-    end
-    self.inputstyle = "apply"
-    Button.render(self, section, scope)
-end
-
-btnins.write = function(self, section)
-    local r = luci.sys.exec(string.format('opkg --force-reinstall install "/tmp/upload/%s"', inits[section].name))
-    upload_form.description = string.format('<span style="color: red">%s</span>', r)
-end
-
-local download_form = SimpleForm("dlfilelist", translate("Download file list"), nil)
-download_form.reset = false
-download_form.submit = false
--- Download form
-local function SetDownloadForm()
-    local tb2 = download_form:section(Table, inits2)
-    local nm2 = tb2:option(DummyValue, "name", translate("File name"))
-    local mt2 = tb2:option(DummyValue, "mtime", translate("Last Modified"))
-    local ms2 = tb2:option(DummyValue, "modestr", translate("Permissions"))
-    local sz2 = tb2:option(DummyValue, "size", translate("Size"))
-    local btnrm2 = tb2:option(Button, "remove", translate("Remove"))
-    btnrm2.render = function(self, section, scope)
-        self.inputstyle = "remove"
-        Button.render(self, section, scope)
-    end
-
-    btnrm2.write = function(self, section)
-        local v = nfs.unlink(dl_path .. nfs.basename(inits2[section].name))
-        if v then
-            table.remove(inits2, section)
-        end
-        return v
-    end
-end
-
-local function Download()
-    local sPath, sFile, fd, block
-    sPath = http.formvalue("dlfile")
+local function Download(sPath)
+    local sFile, fd, block
+    sPath = sPath or http.formvalue("dlfile")
     sFile = nfs.basename(sPath)
     if fs.isdirectory(sPath) then
         fd = io.popen('tar -C "%s" -cz .' % {sPath}, "r")
@@ -162,17 +95,15 @@ local function Download()
     http.close()
 end
 
-local function List()
+local function List(download_form)
     dl_path = http.formvalue("dlfile")
     if fs.isdirectory(dl_path) then
         if string.sub(dl_path, -1) ~= "/" then
             dl_path = dl_path .. "/"
         end
-        inits2 = {}
-        SetTableEntries(inits2, dl_path .. "*")
-        download_form.description = string.format('<span style="color: black">%s</span>', dl_path)
+        download_form.description = format('<span style="color: black">%s</span>', dl_path)
     else
-        download_form.description = string.format('<span style="color: red">%s</span>', translate("Not a folder!"))
+        download_form.description = format('<span style="color: red">%s</span>', translate("Not a folder!"))
     end
 end
 
@@ -206,6 +137,71 @@ http.setfilehandler(
     end
 )
 
+
+--Upload Form
+local upload_form = SimpleForm("filelist", translate("Upload file list"), nil)
+upload_form.reset = false
+upload_form.submit = false
+
+local tb = upload_form:section(Table, inits)
+local nm = tb:option(DummyValue, "name", translate("File name"))
+
+local mt = tb:option(DummyValue, "mtime", translate("Last Modified"))
+local ms = tb:option(DummyValue, "modestr", translate("Permissions"))
+local sz = tb:option(DummyValue, "size", translate("Size"))
+local btnrm = tb:option(Button, "remove", translate("Remove"))
+btnrm.render = function(self, section, scope)
+    scope.display = inits[section].remove and "" or "none"
+    self.inputstyle = "remove"
+    Button.render(self, section, scope)
+end
+
+btnrm.write = function(self, section)
+    local v = nfs.unlink(ul_path .. nfs.basename(inits[section].name))
+    if v then
+        table.remove(inits, section)
+    end
+    return v
+end
+
+local btnins = tb:option(Button, "install", translate("Install"))
+btnins.render = function(self, section, scope)
+    if not inits[section] then
+        return false
+    end
+    scope.display = IsIpkFile(inits[section].name) and "" or "none"
+    self.inputstyle = "apply"
+    Button.render(self, section, scope)
+end
+
+btnins.write = function(self, section)
+    local r = luci.sys.exec(format('opkg --force-reinstall install "/tmp/upload/%s"', inits[section].name))
+    upload_form.description = format('<span style="color: red">%s</span>', r)
+end
+
+-- Download form
+local download_form = SimpleForm("dlfilelist", translate("Download file list"), nil)
+download_form.reset = false
+download_form.submit = false
+local tb2 = download_form:section(Table, inits2)
+local nm2 = tb2:option(DummyValue, "name", translate("File name"))
+local mt2 = tb2:option(DummyValue, "mtime", translate("Last Modified"))
+local ms2 = tb2:option(DummyValue, "modestr", translate("Permissions"))
+local sz2 = tb2:option(DummyValue, "size", translate("Size"))
+local btnrm2 = tb2:option(Button, "remove", translate("Remove"))
+btnrm2.render = function(self, section, scope)
+    self.inputstyle = "remove"
+    Button.render(self, section, scope)
+end
+
+btnrm2.write = function(self, section)
+    local v = nfs.unlink(dl_path .. nfs.basename(inits2[section].name))
+    if v then
+        table.remove(inits2, section)
+    end
+    return v
+end
+
 if luci.http.formvalue("upload") then
     local f = luci.http.formvalue("ulfile")
     if #f <= 0 then
@@ -214,9 +210,10 @@ if luci.http.formvalue("upload") then
 elseif luci.http.formvalue("download") then
     Download()
 elseif luci.http.formvalue("list") then
-    List()
+    List(download_form)
 end
 
-SetDownloadForm()
+SetTableEntries(inits, ul_path)
+SetTableEntries(inits2, dl_path)
 
 return ful, fdl, download_form, upload_form

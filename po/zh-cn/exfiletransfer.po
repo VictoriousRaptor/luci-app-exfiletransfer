@@ -13,8 +13,8 @@ msgstr "创建上传文件失败。"
 msgid "Download"
 msgstr "下载"
 
-msgid "Download file"
-msgstr "下载文件"
+msgid "Download file or foler"
+msgstr "下载文件或文件夹"
 
 msgid "File name"
 msgstr "文件名"
@@ -38,7 +38,7 @@ msgid "No specified upload file."
 msgstr "未指定上传文件"
 
 msgid "Input path on Router:"
-msgstr "输入路由器上目录:"
+msgstr "输入路由器上路径:"
 
 msgid "Remove"
 msgstr "移除"
@@ -51,6 +51,9 @@ msgstr "上传"
 
 msgid "Upload file list"
 msgstr "上传文件列表"
+
+msgid "Download file list"
+msgstr "下载文件列表"
 
 msgid "Upload file to '/tmp/upload/'"
 msgstr "将文件上传到'/tmp/upload/'"
