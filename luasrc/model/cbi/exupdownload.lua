@@ -2,6 +2,7 @@ local fs = require "luci.fs"
 local http = luci.http
 local nfs = require "nixio.fs"
 local nixio = require "nixio"
+local format = string.format
 
 local ful = SimpleForm("upload", translate("Upload"), nil)
 ful.reset = false
@@ -29,7 +30,7 @@ local byteUnits = {" kB", " MB", " GB", " TB"}
 
 local function GetSizeStr(size)
     if size < 1024 then
-        return string.format("%d B", size)
+        return format("%d B", size)
     end
     local i = 0
     repeat
@@ -64,7 +65,7 @@ upload_form.submit = false
 
 local tb = upload_form:section(Table, inits)
 local nm = tb:option(DummyValue, "name", translate("File name"))
-local mt = tb:option(DummyValue, "mtime", translate("Modify time"))
+local mt = tb:option(DummyValue, "mtime", translate("Last Modified"))
 local ms = tb:option(DummyValue, "modestr", translate("Permissions"))
 local sz = tb:option(DummyValue, "size", translate("Size"))
 local btnrm = tb:option(Button, "remove", translate("Remove"))
