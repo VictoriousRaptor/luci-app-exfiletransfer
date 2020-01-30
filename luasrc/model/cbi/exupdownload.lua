@@ -54,7 +54,7 @@ local function SetTableEntries(table, path)
             table[i].mtime = os.date("%Y-%m-%d %H:%M:%S", attr.mtime)
             table[i].modestr = attr.modestr
             table[i].size = GetSizeStr(attr.size)
-            table[i].remove = attr.type ~= "dir"
+            table[i].remove = attr.type == "reg"
             -- table[i].install = false
         end
     end
