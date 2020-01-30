@@ -37,8 +37,8 @@ msgstr "修改时间"
 msgid "No specified upload file."
 msgstr "未指定上传文件"
 
-msgid "Path on Router:"
-msgstr "路由器上目录"
+msgid "Input path on Router:"
+msgstr "输入路由器上目录:"
 
 msgid "Remove"
 msgstr "移除"

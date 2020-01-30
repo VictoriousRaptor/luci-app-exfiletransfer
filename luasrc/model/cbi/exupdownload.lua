@@ -1,24 +1,25 @@
 local fs = require "luci.fs"
 local http = luci.http
 local nfs = require "nixio.fs"
+local nixio = require "nixio"
 
-ful = SimpleForm("upload", translate("Upload"), nil)
+local ful = SimpleForm("upload", translate("Upload"), nil)
 ful.reset = false
 ful.submit = false
 
-sul = ful:section(SimpleSection, "", translate("Upload file to '/tmp/upload/'"))
-fu = sul:option(FileUpload, "")
+local sul = ful:section(SimpleSection, "", translate("Upload file to '/tmp/upload/'"))
+local fu = sul:option(FileUpload, "")
 fu.template = "cbi/exother_upload"
-um = sul:option(DummyValue, "", nil)
+local um = sul:option(DummyValue, "", nil)
 um.template = "cbi/exother_dvalue"
 
-fdl = SimpleForm("download", translate("Download"), nil)
+local fdl = SimpleForm("download", translate("Download"), nil)
 fdl.reset = false
 fdl.submit = false
-sdl = fdl:section(SimpleSection, "", translate("Download file"))
-fd = sdl:option(FileUpload, "")
+local sdl = fdl:section(SimpleSection, "", translate("Download file"))
+local fd = sdl:option(FileUpload, "")
 fd.template = "cbi/exother_download"
-dm = sdl:option(DummyValue, "", nil)
+local dm = sdl:option(DummyValue, "", nil)
 dm.template = "cbi/exother_dvalue"
 
 local ul_path = "/tmp/upload/"
@@ -57,16 +58,16 @@ end
 SetTableEntries(inits, "/tmp/upload/*")
 
 --Upload Form
-upload_form = SimpleForm("filelist", translate("Upload file list"), nil)
+local upload_form = SimpleForm("filelist", translate("Upload file list"), nil)
 upload_form.reset = false
 upload_form.submit = false
 
-tb = upload_form:section(Table, inits)
-nm = tb:option(DummyValue, "name", translate("File name"))
-mt = tb:option(DummyValue, "mtime", translate("Modify time"))
-ms = tb:option(DummyValue, "modestr", translate("Permissions"))
-sz = tb:option(DummyValue, "size", translate("Size"))
-btnrm = tb:option(Button, "remove", translate("Remove"))
+local tb = upload_form:section(Table, inits)
+local nm = tb:option(DummyValue, "name", translate("File name"))
+local mt = tb:option(DummyValue, "mtime", translate("Modify time"))
+local ms = tb:option(DummyValue, "modestr", translate("Permissions"))
+local sz = tb:option(DummyValue, "size", translate("Size"))
+local btnrm = tb:option(Button, "remove", translate("Remove"))
 btnrm.render = function(self, section, scope)
     self.inputstyle = "remove"
     Button.render(self, section, scope)
@@ -86,9 +87,9 @@ local function IsIpkFile(name)
     return ext == ".ipk"
 end
 
-btnis = tb:option(Button, "install", translate("Install"))
-btnis.template = "cbi/exother_button"
-btnis.render = function(self, section, scope)
+local btnins = tb:option(Button, "install", translate("Install"))
+btnins.template = "cbi/exother_button"
+btnins.render = function(self, section, scope)
     if not inits[section] then
         return false
     end
@@ -101,23 +102,22 @@ btnis.render = function(self, section, scope)
     Button.render(self, section, scope)
 end
 
-btnis.write = function(self, section)
+btnins.write = function(self, section)
     local r = luci.sys.exec(string.format('opkg --force-reinstall install "/tmp/upload/%s"', inits[section].name))
     upload_form.description = string.format('<span style="color: red">%s</span>', r)
 end
 
+local download_form = SimpleForm("dlfilelist", translate("Download file list"), nil)
+download_form.reset = false
+download_form.submit = false
 -- Download form
 local function SetDownloadForm()
-    download_form = SimpleForm("dlfilelist", translate("Download file list"), nil)
-    download_form.reset = false
-    download_form.submit = false
-
-    tb2 = download_form:section(Table, inits2)
-    nm2 = tb2:option(DummyValue, "name", translate("File name"))
-    mt2 = tb2:option(DummyValue, "mtime", translate("Last Modified"))
-    ms2 = tb2:option(DummyValue, "modestr", translate("Permissions"))
-    sz2 = tb2:option(DummyValue, "size", translate("Size"))
-    btnrm2 = tb2:option(Button, "remove", translate("Remove"))
+    local tb2 = download_form:section(Table, inits2)
+    local nm2 = tb2:option(DummyValue, "name", translate("File name"))
+    local mt2 = tb2:option(DummyValue, "mtime", translate("Last Modified"))
+    local ms2 = tb2:option(DummyValue, "modestr", translate("Permissions"))
+    local sz2 = tb2:option(DummyValue, "size", translate("Size"))
+    local btnrm2 = tb2:option(Button, "remove", translate("Remove"))
     btnrm2.render = function(self, section, scope)
         self.inputstyle = "remove"
         Button.render(self, section, scope)
@@ -163,9 +163,6 @@ end
 
 local function List()
     dl_path = http.formvalue("dlfile")
-    if not download_form then
-        SetDownloadForm()
-    end
     if fs.isdirectory(dl_path) then
         if string.sub(dl_path, -1) ~= "/" then
             dl_path = dl_path .. "/"
